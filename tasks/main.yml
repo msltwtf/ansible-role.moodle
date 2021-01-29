@@ -1,22 +1,9 @@
 ---
 
-# - name: Downloading Tarball
-#   get_url:
-#     src: https://download.moodle.org/download.php/direct/stable38/moodle-latest-38.tgz
-#     dest: /tmp/moodle.tgz
-
-- name: Unpack moodle tarball
-  unarchive:
-    src: https://download.moodle.org/download.php/direct/stable38/moodle-latest-38.tgz
-    dest: /var/www
-    remote_src: True
-    owner: www-data
-    group: www-data
-    mode: 0755
-
-- name: Install Dependencies
+- name: Install Moodle Dependencies
   apt:
     name:
+      - git
       - libapache2-mod-php
       - php-mysql
       - php-zip
@@ -29,23 +16,54 @@
       - php-soap
     state: present
 
+- name: Cloning moodle codebase
+  git:
+    repo: git://git.moodle.org/moodle.git
+    dest: "{{ moodle_webroot }}"
+    version: "MOODLE_{{ moodle_version }}_STABLE"
+
 - name: Creating Moodle Database
   mysql_db:
-    name: moodle
-    login_user: root
+    name: "{{ moodle_mysql_database }}"
+    login_user: "{{ moodle_mysql_login_user }}"
+    login_password: "{{ moodle_mysql_login_password | default('') }}"
+    login_host: "{{ moodle_mysql_host }}"
     state: present
 
 - name: Create Moodle Database User
   mysql_user:
-    name: moodle
-    password: moodle
-    priv: "moodle.*:ALL"
+    name: "{{ moodle_mysql_username }}"
+    password: "{{ moodle_mysql_password }}"
+    priv: "{{ moodle_mysql_database }}.*:ALL"
+    login_user: "{{ moodle_mysql_login_user }}"
+    login_password: "{{ moodle_mysql_login_password | default('') }}"
+    login_host: "{{ moodle_mysql_host }}"
     state: present
 
 - name: Create datapath
   file:
-    path: {{ data_path }}
+    path: "{{ moodle_data_path }}"
     state: directory
     owner: www-data
     group: www-data
-    mode: 0755
+    mode: 0777
+
+- name: check for installed apache2
+  stat:
+    path: /usr/sbin/apache2
+  register: apache2
+
+- name: enroll apache2 vhost for moodle
+  template:
+    src: apache-vhost.conf.j2
+    dest: "/etc/apache2/sites-enabled/{{ moodle_domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  when: apache2.stat.exists
+  notify: restart apache
+
+- name: enroll moodle config
+  template:
+    src: moodle-config.php.j2
+    dest: "{{ moodle_webroot }}/config.php"

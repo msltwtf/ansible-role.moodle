@@ -1,1 +1,9 @@
-data_path: /var/www/moodledata
+---
+moodle_version: 310
+moodle_webroot: /var/www/moodle
+moodle_data_path: /var/www/moodledata
+
+moodle_mysql_host: localhost
+moodle_mysql_login_user: root
+moodle_mysql_username: moodle
+moodle_mysql_database: moodle
