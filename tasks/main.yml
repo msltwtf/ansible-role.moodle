@@ -50,21 +50,6 @@
     group: www-data
     mode: 0777
 
-- name: Check for installed apache2
-  ansible.builtin.stat:
-    path: /usr/sbin/apache2
-  register: apache2
-
-- name: Enroll apache2 vhost for moodle
-  ansible.builtin.template:
-    src: apache-vhost.conf.j2
-    dest: "/etc/apache2/sites-enabled/{{ moodle_domain }}.conf"
-    owner: root
-    group: root
-    mode: 0644
-  when: apache2.stat.exists
-  notify: restart apache
-
 - name: Enroll moodle config
   ansible.builtin.template:
     src: moodle-config.php.j2
