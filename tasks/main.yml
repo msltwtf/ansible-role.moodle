@@ -1,7 +1,7 @@
 ---
 
 - name: Install Moodle Dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - git
       - libapache2-mod-php
@@ -15,15 +15,17 @@
       - php-xmlrpc
       - php-soap
     state: present
+  become: True
 
 - name: Cloning moodle codebase
-  git:
+  ansible.builtin.git:
     repo: git://git.moodle.org/moodle.git
     dest: "{{ moodle_webroot }}"
     version: "MOODLE_{{ moodle_version }}_STABLE"
+  become: True
 
 - name: Creating Moodle Database
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ moodle_mysql_database }}"
     login_user: "{{ moodle_mysql_login_user }}"
     login_password: "{{ moodle_mysql_login_password | default('') }}"
@@ -31,7 +33,7 @@
     state: present
 
 - name: Create Moodle Database User
-  mysql_user:
+  community.mysql.mysql_user:
     name: "{{ moodle_mysql_username }}"
     password: "{{ moodle_mysql_password }}"
     priv: "{{ moodle_mysql_database }}.*:ALL"
@@ -41,20 +43,20 @@
     state: present
 
 - name: Create datapath
-  file:
+  ansible.builtin.file:
     path: "{{ moodle_data_path }}"
     state: directory
     owner: www-data
     group: www-data
     mode: 0777
 
-- name: check for installed apache2
-  stat:
+- name: Check for installed apache2
+  ansible.builtin.stat:
     path: /usr/sbin/apache2
   register: apache2
 
-- name: enroll apache2 vhost for moodle
-  template:
+- name: Enroll apache2 vhost for moodle
+  ansible.builtin.template:
     src: apache-vhost.conf.j2
     dest: "/etc/apache2/sites-enabled/{{ moodle_domain }}.conf"
     owner: root
@@ -63,7 +65,10 @@
   when: apache2.stat.exists
   notify: restart apache
 
-- name: enroll moodle config
-  template:
+- name: Enroll moodle config
+  ansible.builtin.template:
     src: moodle-config.php.j2
     dest: "{{ moodle_webroot }}/config.php"
+    owner: www-data
+    group: www-data
+    mode: 0755
