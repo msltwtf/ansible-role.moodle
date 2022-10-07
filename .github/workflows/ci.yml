@@ -1,0 +1,31 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 17 * * 5"
+
+defaults:
+  run:
+    working-directory: msltwtf.moodle
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v3
+        with:
+          path: msltwtf.moodle
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install linter
+        run: pip3 install yamllint
