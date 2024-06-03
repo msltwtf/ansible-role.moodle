@@ -18,7 +18,7 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_general_ci',
 );
 
-$CFG->wwwroot   = 'http://{{ moodle_domain }}';
+$CFG->wwwroot   = 'https://{{ moodle_domain }}';
 $CFG->dataroot  = '{{ moodle_data_path }}';
 $CFG->admin     = 'admin';
 
@@ -28,3 +28,4 @@ require_once(__DIR__ . '/lib/setup.php');
 
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
+
