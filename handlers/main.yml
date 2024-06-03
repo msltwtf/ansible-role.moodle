@@ -4,3 +4,10 @@
   systemd:
     name: apache2
     state: restarted
+
+- name: Run moodle upgrades
+  ansible.builtin.command:
+    chdir: "{{ moodle_webroot }}"
+    cmd: /usr/bin/php admin/cli/upgrade.php --non-interactive
+  become: True
+  become_user: www-data

@@ -6,6 +6,7 @@
     dest: "{{ moodle_webroot }}"
     version: "MOODLE_{{ moodle_version }}_STABLE"
   become: True
+  notify: Run moodle upgrades
 
 - name: Creating Moodle Database
   community.mysql.mysql_db:
