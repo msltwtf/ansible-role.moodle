@@ -1,21 +1,5 @@
 ---
 
-- name: Install Moodle Dependencies
-  ansible.builtin.apt:
-    name:
-      - git
-      - php-mysql
-      - php-zip
-      - php-curl
-      - php-xml
-      - php-gd
-      - php-intl
-      - php-mbstring
-      - php-xmlrpc
-      - php-soap
-    state: present
-  become: True
-
 - name: Cloning moodle codebase
   ansible.builtin.git:
     repo: git://git.moodle.org/moodle.git
