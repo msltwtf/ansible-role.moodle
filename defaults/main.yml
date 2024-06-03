@@ -1,5 +1,5 @@
 ---
-moodle_version: 310
+moodle_version: 404
 moodle_webroot: /var/www/moodle
 moodle_data_path: /var/www/moodledata
 
